@@ -1,0 +1,4 @@
+﻿C:\..\..\..\..\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\obj\Debug\net6.0\AS_Vranicich.dll
+Data Source=.;Initial Catalog=DB_AS;Integrated Security=True;
+
+
