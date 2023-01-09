@@ -1,7 +1,10 @@
 {
   "ExpandedNodes": [
     "",
-    "\\AS_Vranicich\\AS_Models"
+    "\\TAP22-23.AuctionSite",
+    "\\TAP22-23.AuctionSite\\AS_Vranicich",
+    "\\TAP22-23.AuctionSite\\AS_Vranicich\\Models"
   ],
+  "SelectedNode": "\\TAP22-23.AuctionSite\\AS_Vranicich\\Models\\User.cs",
   "PreviewInSolutionExplorer": false
 }

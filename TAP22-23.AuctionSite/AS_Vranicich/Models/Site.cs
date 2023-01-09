@@ -1,23 +1,54 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using AS_Vranicich.DbContext;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
+using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
 
-namespace AS_Vranicich.AS_Models
+namespace AS_Vranicich.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Site : ISite
     {
+        public int SiteId { get; set; }
+
+        [MinLength(DomainConstraints.MinSiteName)]
+        [MaxLength(DomainConstraints.MaxSiteName)]
         public string Name { get; }
+
+        [Range(DomainConstraints.MinTimeZone,DomainConstraints.MaxTimeZone)]
         public int Timezone { get; }
+
         public int SessionExpirationInSeconds { get; }
         public double MinimumBidIncrement { get; }
 
+        public static IAlarmClock SiteClock { get; set; }
+
+        public Site(string name, int timezone, int sessionExpirationInSeconds, double minimumBidIncrement)
+        {
+            Name = name;
+            Timezone = timezone;
+            SessionExpirationInSeconds = sessionExpirationInSeconds;
+            MinimumBidIncrement = minimumBidIncrement;
+        }
+
         public IEnumerable<IUser> ToyGetUsers()
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            try
+            {
+                var currSite = c.Sites.SingleOrDefault(site => site.Name == Name);
+                if (currSite == null)
+                {
+                    throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
+                }
+                return c.Users.Where(u => u.SiteId == currSite.SiteId);
+
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException(e.Message, e);
+            }
         }
 
         public IEnumerable<ISession> ToyGetSessions()
