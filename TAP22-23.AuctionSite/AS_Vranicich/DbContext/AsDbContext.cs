@@ -52,7 +52,10 @@ namespace AS_Vranicich.DbContext
                 {
                     case 2601:
                         throw new AuctionSiteUnavailableDbException("Cannot insert duplicate key row in object", e);
-                    
+
+                    case 2627:
+                        throw new AuctionSiteNameAlreadyInUseException("This name is already in use");
+
                     default: throw new AuctionSiteUnavailableDbException(e.Message, e);
                 }
             }

@@ -1,5 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using System.Text;
 using AS_Vranicich.DbContext;
+using AS_Vranicich.Utilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TAP22_23.AlarmClock.Interface;
@@ -10,28 +13,30 @@ namespace AS_Vranicich.Models
     [Index(nameof(Name), IsUnique = true)]
     public class Site : ISite
     {
+        /*
+         * Properties
+         */
         public int SiteId { get; set; }
 
         [MinLength(DomainConstraints.MinSiteName)]
         [MaxLength(DomainConstraints.MaxSiteName)]
-        public string Name { get; }
+        public string Name { get; set; }
 
         [Range(DomainConstraints.MinTimeZone,DomainConstraints.MaxTimeZone)]
-        public int Timezone { get; }
+        public int Timezone { get; set; }
 
-        public int SessionExpirationInSeconds { get; }
-        public double MinimumBidIncrement { get; }
+        public int SessionExpirationInSeconds { get; set; }
+        public double MinimumBidIncrement { get; set; }
 
         public static IAlarmClock SiteClock { get; set; }
 
-        public Site(string name, int timezone, int sessionExpirationInSeconds, double minimumBidIncrement)
-        {
-            Name = name;
-            Timezone = timezone;
-            SessionExpirationInSeconds = sessionExpirationInSeconds;
-            MinimumBidIncrement = minimumBidIncrement;
-        }
+        public List<Session> Sessions { get; set; }
+        public List<User> Users { get; set; }
 
+
+        /*
+         * Methods
+         */
         public IEnumerable<IUser> ToyGetUsers()
         {
             using var c = new AsDbContext();
@@ -68,12 +73,47 @@ namespace AS_Vranicich.Models
 
         public void CreateUser(string username, string password)
         {
-            throw new NotImplementedException();
+            MyVerify.UsernamePasswordVerify(username, password);
+            
+            using var c = new AsDbContext();
+            MyVerify.DB_ConnectionVerify(c);
+
+            try
+            {
+                c.Users.Add(new User()
+                {
+                    SiteId = SiteId,
+                    Username = username,
+                    Password = UtilPassword.EncodePassword(password)
+                });
+
+                c.SaveChanges();
+
+            }
+            catch (DbUpdateException e)
+            {
+                throw new AuctionSiteNameAlreadyInUseException(username, "This username already exist in this site");
+            }
+
         }
 
         public void Delete()
         {
-            throw new NotImplementedException();
+           using var c = new AsDbContext();
+           MyVerify.DB_ConnectionVerify(c);
+
+            try
+            {
+               var site = c.Sites.First(s => s.SiteId == SiteId);
+
+               c.Sites.Remove(site);
+               c.SaveChanges();
+
+            }
+            catch (ArgumentNullException e)
+            {
+                throw new AuctionSiteArgumentNullException("Site not found");
+            }
         }
 
         public DateTime Now()

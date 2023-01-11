@@ -4,11 +4,20 @@ namespace AS_Vranicich.Models
 {
     public class Session : ISession
     {
-        public string Id { get; }
+        /*
+         * Properties
+         */
+        public string Id { get; set; }
         public DateTime ValidUntil { get; }
         public IUser User { get; }
-        
-        
+        public int UserId { get; set; }
+        public int SiteId { get; set; }
+        public Site Site { get; set; }
+
+        /*
+         * Methods
+         */
+
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
         {
             throw new NotImplementedException();

@@ -40,86 +40,102 @@ namespace AS_Vranicich.Logic
 
                 using var c = new AsDbContext(connectionString);
 
-                if (!c.Database.CanConnect())
-                {
-                    throw new AuctionSiteUnavailableDbException(
-                        "Cannot instantiate connection with Database, bad connectionString");
-                }
+                MyVerify.DB_ConnectionVerify(c);
+
                 return new Host(connectionString, alarmClockFactory);
-               
-        }
 
-        
-        public class Host : IHost
-        {
-            public string ConnectionString { get; set; }
-            public IAlarmClockFactory AlarmClockFactory { get; set; }
-
-            public Host(string connectionString, IAlarmClockFactory alarmClockFactory)
-            {
-                ConnectionString = connectionString;
-                AlarmClockFactory = alarmClockFactory;
             }
 
-            public void CreateSite(string name, int timezone, int sessionExpirationTimeInSeconds,
-                double minimumBidIncrement)
+
+            public class Host : IHost
             {
-                MyVerify.TimezoneVerify(timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
-                MyVerify.SiteNameVerify(name);
+                public string ConnectionString { get; set; }
+                public IAlarmClockFactory AlarmClockFactory { get; set; }
 
-                Site site = new Site(name, timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
-
-                using var c = new AsDbContext(ConnectionString);
-
-                if (!c.Database.CanConnect())
+                public Host(string connectionString, IAlarmClockFactory alarmClockFactory)
                 {
-                    throw new AuctionSiteUnavailableDbException(
-                        "Cannot instantiate connection with Database, bad connectionString");
+                    ConnectionString = connectionString;
+                    AlarmClockFactory = alarmClockFactory;
                 }
 
-                foreach (var nameInSite in c.Sites.Select(s => s.Name).ToList())
+                public void CreateSite(string name, int timezone, int sessionExpirationTimeInSeconds,
+                    double minimumBidIncrement)
+                {
+                    MyVerify.TimezoneVerify(timezone, sessionExpirationTimeInSeconds, minimumBidIncrement);
+                    MyVerify.SiteNameVerify(name);
+
+                    using var c = new AsDbContext(ConnectionString);
+                    MyVerify.DB_ConnectionVerify(c);
+
+                    try
                     {
-                        if (nameInSite == name)
+                        var site = c.Sites.Single(s => s.Name == name);
+                        if (site != null)
                         {
-                            throw new AuctionSiteNameAlreadyInUseException($"{nameof(name)} already exist in site");
+                            throw new AuctionSiteNameAlreadyInUseException($"{nameof(name)} already exists");
                         }
+
+                        c.Sites.Add(new Site()
+                        {
+                            Name = name,
+                            Timezone = timezone,
+                            SessionExpirationInSeconds = sessionExpirationTimeInSeconds,
+                            MinimumBidIncrement = minimumBidIncrement
+                        });
+
+                        c.SaveChanges();
                     }
-                
-                c.Sites.Add(site);
-                c.SaveChanges();
-            }
-
-            public IEnumerable<(string Name, int TimeZone)> GetSiteInfos()
-            {
-                using var c = new AsDbContext(ConnectionString);
-                List<Site> sites = new List<Site>();
-
-                try
-                {
-                    if (!c.Database.CanConnect())
+                    catch (DbUpdateException e)
                     {
-                        throw new AuctionSiteUnavailableDbException(
-                            "Cannot instantiate connection with Database, bad connectionString");
+                        throw new AuctionSiteUnavailableDbException();
                     }
-                        
-                    sites = c.Sites.ToList();
-                }
-                catch (ArgumentNullException e)
-                {
-                    throw new AuctionSiteArgumentNullException(e.Message, e);
+                    
                 }
 
-                foreach (var s in sites)
+                public IEnumerable<(string Name, int TimeZone)> GetSiteInfos()
                 {
-                    yield return (s.Name, s.Timezone);
+                    using var c = new AsDbContext(ConnectionString);
+                    List<Site> sites = new List<Site>();
+
+                    try
+                    {
+                        MyVerify.DB_ConnectionVerify(c);
+
+                        sites = c.Sites.ToList();
+                    }
+                    catch (ArgumentNullException e)
+                    {
+                        throw new AuctionSiteArgumentNullException(e.Message, e);
+                    }
+
+                    foreach (var s in sites)
+                    {
+                        yield return (s.Name, s.Timezone);
+                    }
+                }
+
+                public ISite LoadSite(string name)
+                {
+                    MyVerify.SiteNameVerify(name);
+
+                    using var c = new AsDbContext(ConnectionString);
+                    try
+                    {
+                        MyVerify.DB_ConnectionVerify(c);
+
+                        var site = c.Sites.Single(n => n.Name == name);
+
+                        return site;
+
+                    }
+                    catch (ArgumentNullException e)
+                    {
+                        throw new AuctionSiteInexistentNameException($"{nameof(name)}", "This name not exist in DbSet",
+                            e);
+                    }
                 }
             }
 
-            public ISite LoadSite(string name)
-            {
-                MyVerify.SiteNameVerify(name);
-            }
         }
-
     }
 }
