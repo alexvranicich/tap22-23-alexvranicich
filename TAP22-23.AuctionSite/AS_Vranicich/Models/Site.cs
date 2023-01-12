@@ -1,10 +1,13 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using AS_Vranicich.DbContext;
 using AS_Vranicich.Utilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using Microsoft.VisualBasic;
 using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
 
@@ -58,17 +61,128 @@ namespace AS_Vranicich.Models
 
         public IEnumerable<ISession> ToyGetSessions()
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            MyVerify.DB_ConnectionVerify(c);
+
+            var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
+            if (currSite == null)
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
+
+            IQueryable<Session> siteSession;
+            List<User> siteUser;
+            
+            try
+            {
+                siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now());
+                siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
+            }
+            catch (ArgumentNullException e)
+            {
+                throw new AuctionSiteArgumentNullException(e.Message, e);
+            }
+
+            foreach (var session in siteSession)
+            {
+                session.User = siteUser.First(s => s.UserId == session.UserId);
+                yield return session;
+            }
+
         }
 
         public IEnumerable<IAuction> ToyGetAuctions(bool onlyNotEnded)
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            MyVerify.DB_ConnectionVerify(c);
+
+            var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
+            if (currSite == null)
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)}: this site not exists");
+
+            IQueryable<Auction> allAuctions;
+
+            try
+            {
+                allAuctions = c.Auctions.Where(a => a.SiteId == currSite.SiteId);
+            }
+            catch (ArgumentNullException e)
+            {
+                throw new AuctionSiteArgumentNullException("No Auction in this Site");
+            }
+
+
+            if (!onlyNotEnded)
+            {
+                foreach (var singleAuction in allAuctions)
+                {
+                    yield return singleAuction;
+                }
+            }
+            else
+            {
+                IQueryable<Auction> notEndAuctions;
+
+                try
+                {
+                    notEndAuctions = allAuctions.Where(a => a.EndsOn > Now());
+                }
+                catch (ArgumentNullException e)
+                {
+                    throw new AuctionSiteArgumentNullException("All auction are ended", e)
+                }
+
+                foreach (var singleNotEndAuction in notEndAuctions)
+                {
+                    yield return singleNotEndAuction;
+                }
+            }
         }
 
         public ISession? Login(string username, string password)
         {
-            throw new NotImplementedException();
+            MyVerify.UsernamePasswordVerify(username, password);
+
+            using var c = new AsDbContext();
+            MyVerify.DB_ConnectionVerify(c);
+
+            var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
+            if (currSite == null)
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
+
+            var currUser = c.Users.SingleOrDefault(u => u.Username == username && u.SiteId == currSite.SiteId);
+            if (currUser == null || UtilPassword.DecodePassword(currUser.Password) != password)
+                return null;
+
+            try
+            {
+                DateTime dateSessionExpiration = SiteClock.Now.AddSeconds(SessionExpirationInSeconds);
+
+                var currSession = c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
+
+                if (currSession != null)
+                {
+                    currSession.ValidUntil = dateSessionExpiration;
+                    c.SaveChanges();
+                    return currSession;
+                }
+
+                var createSession = new Session()
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    UserId = currUser.UserId,
+                    SiteId = currSite.SiteId,
+                    Site = currSite,
+                    ValidUntil = dateSessionExpiration
+                };
+
+                c.Sessions.Add(createSession);
+                c.SaveChanges();
+                c.Dispose();
+                return createSession;
+            }
+            catch (DbUpdateException e)
+            {
+                throw new AuctionSiteUnavailableDbException(e.Message, e);
+            }
         }
 
         public void CreateUser(string username, string password)
@@ -118,7 +232,8 @@ namespace AS_Vranicich.Models
 
         public DateTime Now()
         {
-            throw new NotImplementedException();
+            var currentTime = SiteClock.Now;
+            return currentTime;
         }
 
     }

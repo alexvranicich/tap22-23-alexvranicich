@@ -23,7 +23,7 @@ namespace AS_Vranicich.Utilities
             }
         }
 
-        public string DecodePassword(string encodedPassword)
+        public static string DecodePassword(string encodedPassword)
         {
             UTF8Encoding encoder = new System.Text.UTF8Encoding();
             Decoder utf8Decode = encoder.GetDecoder();

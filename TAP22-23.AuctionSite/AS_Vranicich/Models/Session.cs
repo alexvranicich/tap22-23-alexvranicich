@@ -8,8 +8,8 @@ namespace AS_Vranicich.Models
          * Properties
          */
         public string Id { get; set; }
-        public DateTime ValidUntil { get; }
-        public IUser User { get; }
+        public DateTime ValidUntil { get; set; }
+        public IUser User { get; set; }
         public int UserId { get; set; }
         public int SiteId { get; set; }
         public Site Site { get; set; }

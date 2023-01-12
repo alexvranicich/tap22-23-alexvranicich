@@ -3,8 +3,9 @@
     "",
     "\\TAP22-23.AuctionSite",
     "\\TAP22-23.AuctionSite\\AS_Vranicich",
-    "\\TAP22-23.AuctionSite\\AS_Vranicich\\Logic"
+    "\\TAP22-23.AuctionSite\\AS_Vranicich\\Logic",
+    "\\TAP22-23.AuctionSite\\Testing"
   ],
-  "SelectedNode": "\\TAP22-23.AuctionSite\\AS_Vranicich\\Logic\\Logic.cs",
+  "SelectedNode": "\\TAP22-23.AuctionSite\\Testing\\Usings.cs",
   "PreviewInSolutionExplorer": false
 }

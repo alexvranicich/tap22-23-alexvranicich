@@ -28,7 +28,7 @@ namespace AS_Vranicich.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var user = modelBuilder.Entity<User>();
-            user.HasOne(user => user.Site);
+            user.HasOne(user => user.SiteUser).WithMany(s => s.Users);
         }
 
         public override int SaveChanges()

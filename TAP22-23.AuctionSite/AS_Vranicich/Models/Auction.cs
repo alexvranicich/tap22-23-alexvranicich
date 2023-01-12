@@ -19,6 +19,7 @@ namespace AS_Vranicich.Models
         public int SiteId { get; set; }
         public Site Site { get; set; }
 
+        public User UserAuction { get; set; }
         public int UserId { get; set; }
         
         /*
