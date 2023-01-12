@@ -127,7 +127,7 @@ namespace AS_Vranicich.Models
                 }
                 catch (ArgumentNullException e)
                 {
-                    throw new AuctionSiteArgumentNullException("All auction are ended", e)
+                    throw new AuctionSiteArgumentNullException("All auction are ended", e);
                 }
 
                 foreach (var singleNotEndAuction in notEndAuctions)
