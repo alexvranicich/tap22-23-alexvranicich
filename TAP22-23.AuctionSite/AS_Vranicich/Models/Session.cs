@@ -1,4 +1,5 @@
-﻿using TAP22_23.AuctionSite.Interface;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using TAP22_23.AuctionSite.Interface;
 
 namespace AS_Vranicich.Models
 {
@@ -9,6 +10,7 @@ namespace AS_Vranicich.Models
          */
         public string Id { get; set; }
         public DateTime ValidUntil { get; set; }
+        [NotMapped]
         public IUser User { get; set; }
         public int UserId { get; set; }
         public int SiteId { get; set; }

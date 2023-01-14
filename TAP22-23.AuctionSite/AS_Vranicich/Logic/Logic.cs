@@ -39,7 +39,6 @@ namespace AS_Vranicich.Logic
                     throw new AuctionSiteArgumentNullException("Alarm clock can't be null");
 
                 using var c = new AsDbContext(connectionString);
-
                 MyVerify.DB_ConnectionVerify(c);
 
                 return new Host(connectionString, alarmClockFactory);
@@ -69,7 +68,7 @@ namespace AS_Vranicich.Logic
 
                     try
                     {
-                        var site = c.Sites.Single(s => s.Name == name);
+                        var site = c.Sites.SingleOrDefault(s => s.Name == name);
                         if (site != null)
                         {
                             throw new AuctionSiteNameAlreadyInUseException($"{nameof(name)} already exists");
@@ -117,18 +116,15 @@ namespace AS_Vranicich.Logic
                 public ISite LoadSite(string name)
                 {
                     MyVerify.SiteNameVerify(name);
-
                     using var c = new AsDbContext(ConnectionString);
+                    MyVerify.DB_ConnectionVerify(c);
+
                     try
-                    {
-                        MyVerify.DB_ConnectionVerify(c);
-
+                    { 
                         var site = c.Sites.Single(n => n.Name == name);
-
                         return site;
-
                     }
-                    catch (ArgumentNullException e)
+                    catch (InvalidOperationException e)
                     {
                         throw new AuctionSiteInexistentNameException($"{nameof(name)}", "This name not exist in DbSet",
                             e);

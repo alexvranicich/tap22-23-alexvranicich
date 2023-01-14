@@ -1,4 +1,4 @@
 ﻿@\..\..\..\..\..\AS_Vranicich\obj\Debug\net6.0\AS_Vranicich.dll
-"Data Source=.;Initial Catalog=DB_AS;Integrated Security=True;"
+Data Source=(localdb)\MSSQLLocalDB;Initial Catalog=AuctionSiteVranicich; Integrated Security=True;
 
 

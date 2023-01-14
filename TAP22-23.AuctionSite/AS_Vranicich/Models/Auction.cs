@@ -10,7 +10,7 @@ namespace AS_Vranicich.Models
          */
 
         public int Id { get; set; }
-        
+        [NotMapped]
         public IUser Seller { get; set;  }
 
         public string Description { get; set; }

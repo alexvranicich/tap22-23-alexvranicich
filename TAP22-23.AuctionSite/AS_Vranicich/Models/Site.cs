@@ -31,7 +31,7 @@ namespace AS_Vranicich.Models
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }
 
-        public static IAlarmClock SiteClock { get; set; }
+        public static DateTime SiteClock { get; set; }
 
         public List<Session> Sessions { get; set; }
         public List<User> Users { get; set; }
@@ -50,8 +50,8 @@ namespace AS_Vranicich.Models
                 {
                     throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
                 }
-                return c.Users.Where(u => u.SiteId == currSite.SiteId);
 
+                return c.Users.Where(u => u.SiteId == currSite.SiteId);
             }
             catch (InvalidOperationException e)
             {
@@ -68,12 +68,12 @@ namespace AS_Vranicich.Models
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
 
-            IQueryable<Session> siteSession;
+            List<Session> siteSession;
             List<User> siteUser;
             
             try
             {
-                siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now());
+                siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now()).ToList();
                 siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
             }
             catch (ArgumentNullException e)
@@ -98,17 +98,16 @@ namespace AS_Vranicich.Models
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)}: this site not exists");
 
-            IQueryable<Auction> allAuctions;
+            List<Auction> allAuctions;
 
             try
             {
-                allAuctions = c.Auctions.Where(a => a.SiteId == currSite.SiteId);
+                allAuctions = c.Auctions.Where(a => a.SiteId == currSite.SiteId).ToList();
             }
             catch (ArgumentNullException e)
             {
                 throw new AuctionSiteArgumentNullException("No Auction in this Site");
             }
-
 
             if (!onlyNotEnded)
             {
@@ -119,11 +118,11 @@ namespace AS_Vranicich.Models
             }
             else
             {
-                IQueryable<Auction> notEndAuctions;
+                List<Auction> notEndAuctions;
 
                 try
                 {
-                    notEndAuctions = allAuctions.Where(a => a.EndsOn > Now());
+                    notEndAuctions = allAuctions.Where(a => a.EndsOn > Now()).ToList();
                 }
                 catch (ArgumentNullException e)
                 {
@@ -154,13 +153,14 @@ namespace AS_Vranicich.Models
 
             try
             {
-                DateTime dateSessionExpiration = SiteClock.Now.AddSeconds(SessionExpirationInSeconds);
+                DateTime dateSessionExpiration = Now().AddSeconds(SessionExpirationInSeconds);
 
                 var currSession = c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
 
                 if (currSession != null)
                 {
                     currSession.ValidUntil = dateSessionExpiration;
+                    c.Sessions.Update(currSession);
                     c.SaveChanges();
                     return currSession;
                 }
@@ -168,15 +168,15 @@ namespace AS_Vranicich.Models
                 var createSession = new Session()
                 {
                     Id = Guid.NewGuid().ToString(),
+                    ValidUntil = dateSessionExpiration,
                     UserId = currUser.UserId,
                     SiteId = currSite.SiteId,
                     Site = currSite,
-                    ValidUntil = dateSessionExpiration
+                    User = currUser
                 };
 
                 c.Sessions.Add(createSession);
                 c.SaveChanges();
-                c.Dispose();
                 return createSession;
             }
             catch (DbUpdateException e)
@@ -192,23 +192,30 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ConnectionVerify(c);
 
+            var currSite = c.Sites.SingleOrDefault(s => s.SiteId == SiteId);
+            if (currSite == null)
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
+
             try
             {
+                var currUser
+                    = c.Users.SingleOrDefault(u => u.Username == username);
+                if (currUser != null)
+                    throw new AuctionSiteNameAlreadyInUseException($"{nameof(username)} of an existing site");
+
                 c.Users.Add(new User()
                 {
-                    SiteId = SiteId,
+                    SiteId = currSite.SiteId,
                     Username = username,
                     Password = UtilPassword.EncodePassword(password)
                 });
 
                 c.SaveChanges();
-
             }
-            catch (DbUpdateException e)
+            catch (InvalidOperationException e)
             {
-                throw new AuctionSiteNameAlreadyInUseException(username, "This username already exist in this site");
+                throw new AuctionSiteInvalidOperationException(e.Message, e);
             }
-
         }
 
         public void Delete()
@@ -216,24 +223,23 @@ namespace AS_Vranicich.Models
            using var c = new AsDbContext();
            MyVerify.DB_ConnectionVerify(c);
 
-            try
-            {
-               var site = c.Sites.First(s => s.SiteId == SiteId);
+           try
+           {
+               var site = c.Sites.Single(s => s.SiteId == SiteId);
 
                c.Sites.Remove(site);
                c.SaveChanges();
-
-            }
-            catch (ArgumentNullException e)
-            {
-                throw new AuctionSiteArgumentNullException("Site not found");
-            }
+           }
+           catch (InvalidOperationException e)
+           {
+               throw new AuctionSiteInvalidOperationException("Site not found", e);
+           }
         }
 
         public DateTime Now()
         {
-            var currentTime = SiteClock.Now;
-            return currentTime;
+            SiteClock = DateTime.Now;
+            return SiteClock;
         }
 
     }

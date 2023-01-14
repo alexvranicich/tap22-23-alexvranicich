@@ -48,7 +48,7 @@ namespace AS_Vranicich.Utilities
                 throw new AuctionSiteArgumentOutOfRangeException("Session expiration time must be positive");
 
             if (bidIncrement < 0)
-                throw new AuctionSiteArgumentNullException("Bid incremention must be positive");
+                throw new AuctionSiteArgumentOutOfRangeException("Bid incremention must be positive");
         }
 
         public static void DB_ConnectionVerify(AsDbContext context)
