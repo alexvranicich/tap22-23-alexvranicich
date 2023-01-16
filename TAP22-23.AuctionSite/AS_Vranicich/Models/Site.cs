@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -30,11 +31,12 @@ namespace AS_Vranicich.Models
 
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }
+   
+        public static IAlarmClock SiteClock { get; set; }
 
-        public static DateTime SiteClock { get; set; }
-
-        public List<Session> Sessions { get; set; }
-        public List<User> Users { get; set; }
+        public List<Session>? Sessions { get; set; }
+        public List<User>? Users { get; set; }
+        public List<Auction>? Auctions { get; set; }
 
 
         /*
@@ -43,6 +45,8 @@ namespace AS_Vranicich.Models
         public IEnumerable<IUser> ToyGetUsers()
         {
             using var c = new AsDbContext();
+            MyVerify.DB_ContextVerify(c);
+
             try
             {
                 var currSite = c.Sites.SingleOrDefault(site => site.Name == Name);
@@ -51,7 +55,7 @@ namespace AS_Vranicich.Models
                     throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
                 }
 
-                return c.Users.Where(u => u.SiteId == currSite.SiteId);
+                return c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
             }
             catch (InvalidOperationException e)
             {
@@ -62,24 +66,15 @@ namespace AS_Vranicich.Models
         public IEnumerable<ISession> ToyGetSessions()
         {
             using var c = new AsDbContext();
-            MyVerify.DB_ConnectionVerify(c);
+            MyVerify.DB_ContextVerify(c);
 
             var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
 
-            List<Session> siteSession;
-            List<User> siteUser;
-            
-            try
-            {
-                siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now()).ToList();
-                siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
-            }
-            catch (ArgumentNullException e)
-            {
-                throw new AuctionSiteArgumentNullException(e.Message, e);
-            }
+
+            var siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > SiteClock.Now);
+            var siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
 
             foreach (var session in siteSession)
             {
@@ -92,7 +87,7 @@ namespace AS_Vranicich.Models
         public IEnumerable<IAuction> ToyGetAuctions(bool onlyNotEnded)
         {
             using var c = new AsDbContext();
-            MyVerify.DB_ConnectionVerify(c);
+            MyVerify.DB_ContextVerify(c);
 
             var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
             if (currSite == null)
@@ -122,7 +117,7 @@ namespace AS_Vranicich.Models
 
                 try
                 {
-                    notEndAuctions = allAuctions.Where(a => a.EndsOn > Now()).ToList();
+                    notEndAuctions = allAuctions.Where(a => a.EndsOn > SiteClock.Now).ToList();
                 }
                 catch (ArgumentNullException e)
                 {
@@ -141,7 +136,7 @@ namespace AS_Vranicich.Models
             MyVerify.UsernamePasswordVerify(username, password);
 
             using var c = new AsDbContext();
-            MyVerify.DB_ConnectionVerify(c);
+            MyVerify.DB_ContextVerify(c);
 
             var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
             if (currSite == null)
@@ -153,7 +148,7 @@ namespace AS_Vranicich.Models
 
             try
             {
-                DateTime dateSessionExpiration = Now().AddSeconds(SessionExpirationInSeconds);
+                DateTime dateSessionExpiration = SiteClock.Now.AddSeconds(SessionExpirationInSeconds);
 
                 var currSession = c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
 
@@ -190,7 +185,7 @@ namespace AS_Vranicich.Models
             MyVerify.UsernamePasswordVerify(username, password);
             
             using var c = new AsDbContext();
-            MyVerify.DB_ConnectionVerify(c);
+            MyVerify.DB_ContextVerify(c);
 
             var currSite = c.Sites.SingleOrDefault(s => s.SiteId == SiteId);
             if (currSite == null)
@@ -221,7 +216,7 @@ namespace AS_Vranicich.Models
         public void Delete()
         {
            using var c = new AsDbContext();
-           MyVerify.DB_ConnectionVerify(c);
+           MyVerify.DB_ContextVerify(c);
 
            try
            {
@@ -238,8 +233,14 @@ namespace AS_Vranicich.Models
 
         public DateTime Now()
         {
-            SiteClock = DateTime.Now;
-            return SiteClock;
+            DateTime now = DateTime.Now;
+
+            if (SiteClock != null)
+            { 
+                now = SiteClock.Now;
+            }
+
+            return now;
         }
 
     }

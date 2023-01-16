@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AS_Vranicich.DbContext;
+using AS_Vranicich.Models;
 using TAP22_23.AuctionSite.Interface;
 
 namespace AS_Vranicich.Utilities
@@ -51,11 +52,21 @@ namespace AS_Vranicich.Utilities
                 throw new AuctionSiteArgumentOutOfRangeException("Bid incremention must be positive");
         }
 
-        public static void DB_ConnectionVerify(AsDbContext context)
+        public static void DB_ContextVerify(AsDbContext context)
         {
             if (!context.Database.CanConnect())
                 throw new AuctionSiteUnavailableDbException(
                     "Cannot instantiate connection with Database, bad connectionString");
+        }
+
+
+        public static void BidSessionVerify(ISession session, double offer)
+        {
+            if (offer < 0)
+                throw new AuctionSiteArgumentOutOfRangeException("The offer must be positive");
+
+            if (session == null)
+                throw new AuctionSiteArgumentNullException("There is no session");
         }
     }
 }

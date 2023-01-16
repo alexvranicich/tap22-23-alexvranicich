@@ -39,7 +39,7 @@ namespace AS_Vranicich.Logic
                     throw new AuctionSiteArgumentNullException("Alarm clock can't be null");
 
                 using var c = new AsDbContext(connectionString);
-                MyVerify.DB_ConnectionVerify(c);
+                MyVerify.DB_ContextVerify(c);
 
                 return new Host(connectionString, alarmClockFactory);
 
@@ -64,7 +64,7 @@ namespace AS_Vranicich.Logic
                     MyVerify.SiteNameVerify(name);
 
                     using var c = new AsDbContext(ConnectionString);
-                    MyVerify.DB_ConnectionVerify(c);
+                    MyVerify.DB_ContextVerify(c);
 
                     try
                     {
@@ -98,7 +98,7 @@ namespace AS_Vranicich.Logic
 
                     try
                     {
-                        MyVerify.DB_ConnectionVerify(c);
+                        MyVerify.DB_ContextVerify(c);
 
                         sites = c.Sites.ToList();
                     }
@@ -117,7 +117,7 @@ namespace AS_Vranicich.Logic
                 {
                     MyVerify.SiteNameVerify(name);
                     using var c = new AsDbContext(ConnectionString);
-                    MyVerify.DB_ConnectionVerify(c);
+                    MyVerify.DB_ContextVerify(c);
 
                     try
                     { 

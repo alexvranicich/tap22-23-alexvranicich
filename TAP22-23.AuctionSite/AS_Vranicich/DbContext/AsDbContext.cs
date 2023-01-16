@@ -28,7 +28,15 @@ namespace AS_Vranicich.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var user = modelBuilder.Entity<User>();
-            user.HasOne(user => user.SiteUser).WithMany(s => s.Users).OnDelete(DeleteBehavior.ClientCascade);
+            user.HasOne(user => user.SiteUser).WithMany(site => site.Users).OnDelete(DeleteBehavior.Cascade);
+            user.HasOne(user => user.SessionUser);
+            user.HasMany(user => user.AuctionsUser).WithOne(auction => auction.UserAuction).OnDelete(DeleteBehavior.ClientCascade);
+
+            var session = modelBuilder.Entity<Session>();
+            session.HasOne(session => session.Site).WithMany(site => site.Sessions).OnDelete(DeleteBehavior.ClientCascade);
+            
+            var auction = modelBuilder.Entity<Auction>();
+            auction.HasOne(auction => auction.Site).WithMany(site => site.Auctions).OnDelete(DeleteBehavior.ClientCascade);
         }
 
         public override int SaveChanges()

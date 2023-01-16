@@ -1,4 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
+using AS_Vranicich.DbContext;
+using AS_Vranicich.Utilities;
+using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
 
 namespace AS_Vranicich.Models
@@ -13,8 +16,10 @@ namespace AS_Vranicich.Models
         [NotMapped]
         public IUser User { get; set; }
         public int UserId { get; set; }
-        public int SiteId { get; set; }
+       
         public Site Site { get; set; }
+        public int SiteId { get; set; }
+        public List<Auction>? Auctions { get; set; }
 
         /*
          * Methods
@@ -29,5 +34,6 @@ namespace AS_Vranicich.Models
         {
             throw new NotImplementedException();
         }
+
     }
 }
