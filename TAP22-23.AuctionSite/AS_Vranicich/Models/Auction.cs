@@ -14,7 +14,8 @@ namespace AS_Vranicich.Models
          */
 
         public int Id { get; set; }
-        [NotMapped] public IUser Seller { get; set; }
+        [NotMapped]
+        public IUser Seller { get; set; }
         public string Description { get; set; }
         public DateTime EndsOn { get; set; }
 
@@ -25,9 +26,8 @@ namespace AS_Vranicich.Models
         public string WinningUser { get; set; }
 
         public double MaximumOffer { get; set; }
+        
         public double CurrPrice { get; set; }
-
-        public IAlarmClock Clock { get; set; }
 
         /*
          * Methods
@@ -35,17 +35,50 @@ namespace AS_Vranicich.Models
 
         public IUser? CurrentWinner()
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            MyVerify.DB_ContextVerify(c);
+
+            var currAuction = c.Auctions.SingleOrDefault(a => a.Id == Id && a.SiteId == SiteId);     // 
+            return c.Users.SingleOrDefault(u => u.Username == currAuction.WinningUser);
         }
 
         public double CurrentPrice()
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            MyVerify.DB_ContextVerify(c);
+
+            try
+            {
+                var currentAuction = c.Auctions.SingleOrDefault(a => a.Id == Id);
+                if (currentAuction == null)
+                    throw new AuctionSiteArgumentOutOfRangeException($"{nameof(Id)} auction expired");
+
+                return currentAuction.CurrPrice;
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException(e.Message);
+            }
         }
 
         public void Delete()
         {
-            throw new NotImplementedException();
+            using var c = new AsDbContext();
+            MyVerify.DB_ContextVerify(c);
+
+            try
+            {
+                var currAuction = c.Auctions.SingleOrDefault(a => a.Id == Id);
+                if (currAuction == null)
+                    throw new AuctionSiteInvalidOperationException($"{nameof(currAuction)} is null");
+
+                c.Auctions.Remove(currAuction);
+                c.SaveChanges();
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException(e.Message);
+            }
         }
 
         public bool Bid(ISession session, double offer)
@@ -55,17 +88,14 @@ namespace AS_Vranicich.Models
 
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
-
-            var existAuction = c.Auctions.SingleOrDefault(a =>
-                a.Seller.Username == Seller.Username && a.SiteId == SiteId && a.Id == Id);
-            if (existAuction == null)
-                throw new AuctionSiteInvalidOperationException($"Auction: {nameof(Id)} is not exist");
-
-            var currAuction = c.Auctions.SingleOrDefault(a => a.Id == existAuction.Id && a.EndsOn > Clock.Now);
+            
+            var currAuction = c.Auctions.SingleOrDefault(a => a.SiteId == SiteId && a.Id == Id);
             if (currAuction == null)
+                throw new AuctionSiteInvalidOperationException($"Auction: {nameof(Id)} is not exist");
+            if (currAuction.EndsOn > Site.Now())
                 throw new AuctionSiteInvalidOperationException($"{nameof(EndsOn)} auction expired");
 
-            var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id && s.ValidUntil > Clock.Now);
+            var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id && s.ValidUntil > Site.Now());
             if (currSession == null)
                 throw new AuctionSiteArgumentException($"{nameof(Id)} isn't a valid session");
 

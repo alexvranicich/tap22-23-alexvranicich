@@ -17,3 +17,9 @@ C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\
 C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\obj\Debug\net6.0\AS_Vranicich.pdb
 C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\obj\Debug\net6.0\AS_Vranicich.genruntimeconfig.cache
 C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\obj\Debug\net6.0\ref\AS_Vranicich.dll
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\NUnit3.TestAdapter.dll
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\NUnit3.TestAdapter.pdb
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\nunit.engine.dll
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\nunit.engine.api.dll
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\nunit.engine.core.dll
+C:\Users\alexv\Source\Repos\TAP2017\tap22-23-alexvranicich\TAP22-23.AuctionSite\AS_Vranicich\bin\Debug\net6.0\testcentric.engine.metadata.dll

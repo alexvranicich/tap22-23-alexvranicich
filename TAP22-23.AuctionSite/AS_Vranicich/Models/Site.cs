@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
@@ -7,8 +8,6 @@ using AS_Vranicich.DbContext;
 using AS_Vranicich.Utilities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Conventions;
-using Microsoft.VisualBasic;
 using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
 
@@ -31,8 +30,8 @@ namespace AS_Vranicich.Models
 
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }
-   
-        public static IAlarmClock SiteClock { get; set; }
+        [NotMapped]
+        public IAlarmClock SiteClock { get; set; }
 
         public List<Session>? Sessions { get; set; }
         public List<User>? Users { get; set; }
@@ -73,7 +72,7 @@ namespace AS_Vranicich.Models
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
 
 
-            var siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > SiteClock.Now);
+            var siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now());
             var siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
 
             foreach (var session in siteSession)
@@ -89,7 +88,7 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
+            var currSite = c.Sites.First(s => s.Name == Name);
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)}: this site not exists");
 
@@ -117,7 +116,7 @@ namespace AS_Vranicich.Models
 
                 try
                 {
-                    notEndAuctions = allAuctions.Where(a => a.EndsOn > SiteClock.Now).ToList();
+                    notEndAuctions = allAuctions.Where(a => a.EndsOn > Now()).ToList();
                 }
                 catch (ArgumentNullException e)
                 {
@@ -142,20 +141,20 @@ namespace AS_Vranicich.Models
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
 
-            var currUser = c.Users.SingleOrDefault(u => u.Username == username && u.SiteId == currSite.SiteId);
+            var currUser = c.Users.SingleOrDefault(u => u.Username == username && u.SiteId == SiteId);
             if (currUser == null || UtilPassword.DecodePassword(currUser.Password) != password)
                 return null;
 
             try
             {
-                DateTime dateSessionExpiration = SiteClock.Now.AddSeconds(SessionExpirationInSeconds);
+                DateTime dateSessionExpiration = Now().AddSeconds(SessionExpirationInSeconds);
 
-                var currSession = c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
+                var currSession =
+                    c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
 
                 if (currSession != null)
                 {
                     currSession.ValidUntil = dateSessionExpiration;
-                    c.Sessions.Update(currSession);
                     c.SaveChanges();
                     return currSession;
                 }
@@ -173,6 +172,10 @@ namespace AS_Vranicich.Models
                 c.Sessions.Add(createSession);
                 c.SaveChanges();
                 return createSession;
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteArgumentException(e.Message, e);
             }
             catch (DbUpdateException e)
             {
@@ -233,14 +236,7 @@ namespace AS_Vranicich.Models
 
         public DateTime Now()
         {
-            DateTime now = DateTime.Now;
-
-            if (SiteClock != null)
-            { 
-                now = SiteClock.Now;
-            }
-
-            return now;
+            SiteClock = IAlarmClockFactory.;
         }
 
     }

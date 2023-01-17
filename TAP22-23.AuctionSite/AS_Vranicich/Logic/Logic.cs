@@ -120,9 +120,13 @@ namespace AS_Vranicich.Logic
                     MyVerify.DB_ContextVerify(c);
 
                     try
-                    { 
-                        var site = c.Sites.Single(n => n.Name == name);
-                        return site;
+                    {
+                        var s = c.Sites.SingleOrDefault(s => s.Name == name);
+                        if (s == null)
+                            throw new AuctionSiteInexistentNameException($"{nameof(name)}: this site not exists");
+
+                        IAlarmClock alarmClock = AlarmClockFactory.InstantiateAlarmClock(s.Timezone); 
+                        alarmClock.InstantiateAlarm(5 * 60 * 1000);
                     }
                     catch (InvalidOperationException e)
                     {

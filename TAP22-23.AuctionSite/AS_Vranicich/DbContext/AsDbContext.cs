@@ -1,9 +1,7 @@
 ﻿using AS_Vranicich.Models;
 using Microsoft.EntityFrameworkCore;
 using TAP22_23.AuctionSite.Interface;
-using System.ComponentModel.DataAnnotations;
 using Microsoft.Data.SqlClient;
-using Microsoft.Identity.Client;
 
 namespace AS_Vranicich.DbContext
 {

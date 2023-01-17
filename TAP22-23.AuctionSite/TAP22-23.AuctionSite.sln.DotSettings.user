@@ -4,6 +4,9 @@
     &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostFactoryBadConnectionTests.LoadHost_BadConnectionString_Throws&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.SiteTests&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostBasicTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.AuctionTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.DbContextTests&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.UserTests&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
