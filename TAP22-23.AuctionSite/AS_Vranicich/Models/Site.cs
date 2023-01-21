@@ -31,10 +31,11 @@ namespace AS_Vranicich.Models
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }
         [NotMapped]
-        public IAlarmClock SiteClock { get; set; }
+        public IAlarmClock? SiteClock { get; set; }
+       
 
         public List<Session>? Sessions { get; set; }
-        public List<User>? Users { get; set; }
+        public List<User>? SiteUsers { get; set; }
         public List<Auction>? Auctions { get; set; }
 
 
@@ -46,41 +47,42 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            try
+            var currSite = c.Sites.SingleOrDefault(site => site.Name == Name);
+            if (currSite == null)
             {
-                var currSite = c.Sites.SingleOrDefault(site => site.Name == Name);
-                if (currSite == null)
-                {
-                    throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
-                }
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
+            }
+            
+            var allSiteUsers = c.Users.Where(u => u.SiteId == currSite.SiteId);
+            if (!allSiteUsers.Any())
+            {
+                throw new AuctionSiteArgumentNullException("No users in this is site");
+            }
 
-                return c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
-            }
-            catch (InvalidOperationException e)
+            foreach (var user in allSiteUsers)
             {
-                throw new AuctionSiteInvalidOperationException(e.Message, e);
+                yield return user;
             }
+
         }
 
-        public IEnumerable<ISession> ToyGetSessions()
+        public IEnumerable<ISession?> ToyGetSessions()
         {
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var currSite = c.Sites.SingleOrDefault(s => s.Name == Name);
+            var currSite = c.Sites.SingleOrDefault(site => site.Name == Name);
             if (currSite == null)
-                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
-
-
-            var siteSession = c.Sessions.Where(s => s.SiteId == currSite.SiteId && s.ValidUntil > Now());
-            var siteUser = c.Users.Where(u => u.SiteId == currSite.SiteId).ToList();
-
-            foreach (var session in siteSession)
             {
-                session.User = siteUser.First(s => s.UserId == session.UserId);
-                yield return session;
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist");
             }
 
+            var allSessions= c.Sessions.Where(s => s.SiteId == currSite.SiteId);
+
+            foreach (var session in allSessions)
+            {
+                yield return session;
+            }
         }
 
         public IEnumerable<IAuction> ToyGetAuctions(bool onlyNotEnded)
@@ -141,28 +143,26 @@ namespace AS_Vranicich.Models
             if (currSite == null)
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist in DB");
 
-            var currUser = c.Users.SingleOrDefault(u => u.Username == username && u.SiteId == SiteId);
+            var currUser = c.Users.SingleOrDefault(u => u.Username == username);
             if (currUser == null || UtilPassword.DecodePassword(currUser.Password) != password)
                 return null;
 
             try
             {
-                DateTime dateSessionExpiration = Now().AddSeconds(SessionExpirationInSeconds);
-
                 var currSession =
-                    c.Sessions.SingleOrDefault(s => s.SiteId == currSite.SiteId && s.UserId == currUser.UserId);
+                    c.Sessions.SingleOrDefault(s => s.UserId == currUser.UserId);
 
                 if (currSession != null)
                 {
-                    currSession.ValidUntil = dateSessionExpiration;
+                    currSession.ValidUntil = Now().AddSeconds(SessionExpirationInSeconds);
+                    c.Sessions.Update(currSession);
                     c.SaveChanges();
                     return currSession;
                 }
 
                 var createSession = new Session()
                 {
-                    Id = Guid.NewGuid().ToString(),
-                    ValidUntil = dateSessionExpiration,
+                    ValidUntil = Now().AddSeconds(SessionExpirationInSeconds),
                     UserId = currUser.UserId,
                     SiteId = currSite.SiteId,
                     Site = currSite,
@@ -221,23 +221,21 @@ namespace AS_Vranicich.Models
            using var c = new AsDbContext();
            MyVerify.DB_ContextVerify(c);
 
-           try
-           {
-               var site = c.Sites.Single(s => s.SiteId == SiteId);
+           
+           var site = c.Sites.SingleOrDefault(s => s.SiteId == SiteId);
+           if (site == null)
+               throw new AuctionSiteInvalidOperationException("Site not found");
 
-               c.Sites.Remove(site);
-               c.SaveChanges();
-           }
-           catch (InvalidOperationException e)
-           {
-               throw new AuctionSiteInvalidOperationException("Site not found", e);
-           }
+           c.Sites.Remove(site);
+           c.SaveChanges();
         }
+          
 
         public DateTime Now()
         {
-            SiteClock = IAlarmClockFactory.;
+            return SiteClock.Now;
         }
+
 
     }
 

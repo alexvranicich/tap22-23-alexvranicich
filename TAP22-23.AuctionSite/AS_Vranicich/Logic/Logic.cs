@@ -94,12 +94,12 @@ namespace AS_Vranicich.Logic
                 public IEnumerable<(string Name, int TimeZone)> GetSiteInfos()
                 {
                     using var c = new AsDbContext(ConnectionString);
+                    MyVerify.DB_ContextVerify(c);
+
                     List<Site> sites = new List<Site>();
 
                     try
                     {
-                        MyVerify.DB_ContextVerify(c);
-
                         sites = c.Sites.ToList();
                     }
                     catch (ArgumentNullException e)
@@ -121,12 +121,17 @@ namespace AS_Vranicich.Logic
 
                     try
                     {
-                        var s = c.Sites.SingleOrDefault(s => s.Name == name);
-                        if (s == null)
+                        var site = c.Sites.SingleOrDefault(s => s.Name == name);
+                        if (site == null)
                             throw new AuctionSiteInexistentNameException($"{nameof(name)}: this site not exists");
 
-                        IAlarmClock alarmClock = AlarmClockFactory.InstantiateAlarmClock(s.Timezone); 
-                        alarmClock.InstantiateAlarm(5 * 60 * 1000);
+                        IAlarmClock siteClock = AlarmClockFactory.InstantiateAlarmClock(site.Timezone);
+                        siteClock.InstantiateAlarm(5 * 60 * 1000);
+
+                        site.SiteClock = siteClock;
+                        c.Sites.Update(site);
+                        c.SaveChanges();
+                        return site;
                     }
                     catch (InvalidOperationException e)
                     {

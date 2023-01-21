@@ -26,7 +26,6 @@ namespace AS_Vranicich.Models
         public string WinningUser { get; set; }
 
         public double MaximumOffer { get; set; }
-        
         public double CurrPrice { get; set; }
 
         /*
@@ -80,7 +79,7 @@ namespace AS_Vranicich.Models
                 throw new AuctionSiteInvalidOperationException(e.Message);
             }
         }
-
+        
         public bool Bid(ISession session, double offer)
         {
             MyVerify.BidSessionVerify(session,
@@ -95,8 +94,8 @@ namespace AS_Vranicich.Models
             if (currAuction.EndsOn > Site.Now())
                 throw new AuctionSiteInvalidOperationException($"{nameof(EndsOn)} auction expired");
 
-            var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id && s.ValidUntil > Site.Now());
-            if (currSession == null)
+            var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id);
+            if (currSession == null || currSession.ValidUntil > Site.Now())
                 throw new AuctionSiteArgumentException($"{nameof(Id)} isn't a valid session");
 
             var currUser = c.Users.SingleOrDefault(u => u.SessionUser.Id == session.Id);

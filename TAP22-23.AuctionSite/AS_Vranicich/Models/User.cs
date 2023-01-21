@@ -39,7 +39,16 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            return c.Auctions.Where(a => a.WinningUser == Username).AsEnumerable();
+            var allWonAuctions = c.Auctions.Where(a => a.WinningUser == Username);
+            if (!allWonAuctions.Any())
+            {
+                throw new AuctionSiteArgumentNullException("No won Auctions for thi user");
+            }
+
+            foreach (var auction in allWonAuctions)
+            {
+                yield return auction;
+            }
         }
 
         public void Delete()
@@ -50,9 +59,9 @@ namespace AS_Vranicich.Models
 
             var currUser = c.Users.Single(u => u.UserId == UserId && u.SiteId == SiteId);
 
-            var noEndAuction = c.Auctions.SingleOrDefault(a =>SiteId == currUser.SiteId);
+            var noEndAuction = c.Auctions.SingleOrDefault(a =>a.Id == currUser.SiteId);
 
-            if (noEndAuction == null || noEndAuction.EndsOn > SiteUser.Now())
+            if (noEndAuction == null || noEndAuction.EndsOn < SiteUser.Now())
                 throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user has a non ended auction");
 
             var currWin = c.Auctions.SingleOrDefault(c => c.CurrentWinner() == currUser);

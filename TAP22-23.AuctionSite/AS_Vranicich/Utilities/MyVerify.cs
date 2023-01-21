@@ -68,5 +68,15 @@ namespace AS_Vranicich.Utilities
             if (session == null)
                 throw new AuctionSiteArgumentNullException("There is no session");
         }
+
+        public static void AuctionVerify(string description, double startingPrice)
+        {
+            if (description == null)
+                throw new AuctionSiteArgumentNullException("Description must be non null");
+            if (description == String.Empty)
+                throw new AuctionSiteArgumentException("Description must be no empty");
+            if (startingPrice < 0)
+                throw new AuctionSiteArgumentOutOfRangeException("Starting price must be positive");
+        }
     }
 }

@@ -1,13 +1,26 @@
 ﻿<wpf:ResourceDictionary xml:space="preserve" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:s="clr-namespace:System;assembly=mscorlib" xmlns:ss="urn:shemas-jetbrains-com:settings-storage-xaml" xmlns:wpf="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=7d4b2b90_002D3fe0_002D4452_002Db462_002Dcd7390266110/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="LoadHost_BadConnectionString_Throws" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
-  &lt;TestAncestor&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostFactoryBadConnectionTests.LoadHost_BadConnectionString_Throws&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.SiteTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostBasicTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.AuctionTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.DbContextTests&lt;/TestId&gt;&#xD;
-    &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.UserTests&lt;/TestId&gt;&#xD;
-  &lt;/TestAncestor&gt;&#xD;
+  &lt;Or&gt;&#xD;
+    &lt;And&gt;&#xD;
+      &lt;TestAncestor&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostFactoryBadConnectionTests.LoadHost_BadConnectionString_Throws&lt;/TestId&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.SiteTests&lt;/TestId&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostBasicTests&lt;/TestId&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.AuctionTests&lt;/TestId&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.DbContextTests&lt;/TestId&gt;&#xD;
+        &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.UserTests&lt;/TestId&gt;&#xD;
+      &lt;/TestAncestor&gt;&#xD;
+      &lt;Not&gt;&#xD;
+        &lt;TestAncestor&gt;&#xD;
+          &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.AuctionTests&lt;/TestId&gt;&#xD;
+        &lt;/TestAncestor&gt;&#xD;
+      &lt;/Not&gt;&#xD;
+    &lt;/And&gt;&#xD;
+    &lt;TestAncestor&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.AuctionTests&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostLoadSiteWithUsersTests&lt;/TestId&gt;&#xD;
+    &lt;/TestAncestor&gt;&#xD;
+  &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	
 	
