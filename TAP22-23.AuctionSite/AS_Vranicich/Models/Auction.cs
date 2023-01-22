@@ -21,10 +21,10 @@ namespace AS_Vranicich.Models
 
         public Site Site { get; set; }
         public int SiteId { get; set; }
-        public User UserAuction { get; set; }
-        public int UserId { get; set; }
-        public string WinningUser { get; set; }
+        public Session Session { get; set; }
+        public string SessionId { get; set; }
 
+        public string? WinningUser { get; set; }
         public double MaximumOffer { get; set; }
         public double CurrPrice { get; set; }
 
@@ -37,7 +37,7 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var currAuction = c.Auctions.SingleOrDefault(a => a.Id == Id && a.SiteId == SiteId);     // 
+            var currAuction = c.Auctions.SingleOrDefault(a => a.Id == Id && a.SiteId == SiteId);     
             return c.Users.SingleOrDefault(u => u.Username == currAuction.WinningUser);
         }
 
@@ -73,6 +73,7 @@ namespace AS_Vranicich.Models
 
                 c.Auctions.Remove(currAuction);
                 c.SaveChanges();
+                c.Dispose();
             }
             catch (InvalidOperationException e)
             {
@@ -87,15 +88,29 @@ namespace AS_Vranicich.Models
 
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
-            
-            var currAuction = c.Auctions.SingleOrDefault(a => a.SiteId == SiteId && a.Id == Id);
+
+            Site currSite;
+            DateTime currTimeClock;
+
+            try
+            {
+                currSite = c.Sites.Single(s => s.SiteId == SiteId);
+                currTimeClock = currSite.Now();
+
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException("Site not exist", e);
+            }
+
+            var currAuction = c.Auctions.SingleOrDefault(a => a.SiteId == currSite.SiteId && a.Id == Id);
             if (currAuction == null)
                 throw new AuctionSiteInvalidOperationException($"Auction: {nameof(Id)} is not exist");
-            if (currAuction.EndsOn > Site.Now())
+            if (currAuction.EndsOn < currTimeClock)
                 throw new AuctionSiteInvalidOperationException($"{nameof(EndsOn)} auction expired");
 
             var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id);
-            if (currSession == null || currSession.ValidUntil > Site.Now())
+            if (currSession == null || currSession.ValidUntil < currTimeClock)
                 throw new AuctionSiteArgumentException($"{nameof(Id)} isn't a valid session");
 
             var currUser = c.Users.SingleOrDefault(u => u.SessionUser.Id == session.Id);
@@ -167,6 +182,7 @@ namespace AS_Vranicich.Models
             {
                 currAuction.CurrPrice = Math.Min(offer, currAuction.MaximumOffer + Site.MinimumBidIncrement);
                 currAuction.MaximumOffer = offer;
+                currAuction.WinningUser = currUser.Username;
             }
 
             /*

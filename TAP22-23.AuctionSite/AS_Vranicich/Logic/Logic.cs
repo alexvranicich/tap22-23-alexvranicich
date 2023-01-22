@@ -73,7 +73,7 @@ namespace AS_Vranicich.Logic
                         {
                             throw new AuctionSiteNameAlreadyInUseException($"{nameof(name)} already exists");
                         }
-
+                        
                         c.Sites.Add(new Site()
                         {
                             Name = name,
@@ -125,11 +125,10 @@ namespace AS_Vranicich.Logic
                         if (site == null)
                             throw new AuctionSiteInexistentNameException($"{nameof(name)}: this site not exists");
 
-                        IAlarmClock siteClock = AlarmClockFactory.InstantiateAlarmClock(site.Timezone);
-                        siteClock.InstantiateAlarm(5 * 60 * 1000);
 
-                        site.SiteClock = siteClock;
-                        c.Sites.Update(site);
+                        IAlarmClock alarmClock = AlarmClockFactory.InstantiateAlarmClock(site.Timezone);
+                        site.SetSessionCleanerAlarm(alarmClock);
+
                         c.SaveChanges();
                         return site;
                     }

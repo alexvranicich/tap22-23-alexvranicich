@@ -12,7 +12,7 @@ namespace AS_Vranicich.DbContext
         public DbSet<Site> Sites { get; set; }
         public DbSet<Auction> Auctions { get; set; } 
         
-        private static string? ConnectionString { get; set; }
+        private static string ConnectionString { get; set; }
 
         public AsDbContext(string connectionString) : base(new DbContextOptionsBuilder<AsDbContext>()
             .UseSqlServer(connectionString).Options)
@@ -28,7 +28,7 @@ namespace AS_Vranicich.DbContext
             var user = modelBuilder.Entity<User>();
             user.HasOne(user => user.SiteUser).WithMany(site => site.SiteUsers).OnDelete(DeleteBehavior.Cascade);
             user.HasOne(user => user.SessionUser);
-            user.HasMany(user => user.AuctionsUser).WithOne(auction => auction.UserAuction).OnDelete(DeleteBehavior.ClientCascade);
+            user.HasMany(user => user.AuctionsUser).WithOne(auction => (User?)auction.Seller).OnDelete(DeleteBehavior.ClientCascade);
 
             var session = modelBuilder.Entity<Session>();
             session.HasOne(session => session.Site).WithMany(site => site.Sessions).OnDelete(DeleteBehavior.ClientCascade);
@@ -66,6 +66,5 @@ namespace AS_Vranicich.DbContext
                 }
             }
         }
-
     }
 }

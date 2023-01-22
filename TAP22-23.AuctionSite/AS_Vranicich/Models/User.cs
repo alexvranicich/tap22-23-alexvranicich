@@ -40,10 +40,6 @@ namespace AS_Vranicich.Models
             MyVerify.DB_ContextVerify(c);
 
             var allWonAuctions = c.Auctions.Where(a => a.WinningUser == Username);
-            if (!allWonAuctions.Any())
-            {
-                throw new AuctionSiteArgumentNullException("No won Auctions for thi user");
-            }
 
             foreach (var auction in allWonAuctions)
             {
@@ -56,22 +52,34 @@ namespace AS_Vranicich.Models
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
+            User currUser;
 
-            var currUser = c.Users.Single(u => u.UserId == UserId && u.SiteId == SiteId);
+            try
+            {
+                currUser = c.Users.Single(u => u.UserId == UserId && u.SiteId == SiteId);
 
-            var noEndAuction = c.Auctions.SingleOrDefault(a =>a.Id == currUser.SiteId);
+                var noAuction = c.Auctions.Where(a => a.Seller == currUser);
+                if (noAuction.Any())
+                    throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user not have auction");
+            
+                /*var noEndAuction = noAuction.Where(a=> a.EndsOn < SiteUser.Now())
+            if(noEndAuction.EndsOn < SiteUser.Now())
+                throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user has a NON ENDED auction");
+            */
 
-            if (noEndAuction == null || noEndAuction.EndsOn < SiteUser.Now())
-                throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user has a non ended auction");
-
-            var currWin = c.Auctions.SingleOrDefault(c => c.CurrentWinner() == currUser);
-
-            if (currWin != null)
-                throw new AuctionSiteInvalidOperationException(
-                    "Can't delete this user, this user is winning an auction");
+                var currWin = c.Auctions.Where(c => c.WinningUser == currUser.Username);
+                if (currWin.Any())
+                    throw new AuctionSiteInvalidOperationException(
+                        "Can't delete this user, this user is winning an auction");
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException(e.Message, e);
+            }
 
             c.Users.Remove(currUser);
             c.SaveChanges();
+            c.Dispose();
         }
 
     }

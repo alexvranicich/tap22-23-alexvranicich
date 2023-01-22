@@ -255,6 +255,8 @@ namespace TAP22_23.AuctionSite.Testing
             const string password = "pippo.123";
             Site.CreateUser(username, password);
             var session = Site.Login(username, password)!;
+            Console.WriteLine($"{session.User.Username}");
+            Console.WriteLine($"{Site.ToyGetUsers().Single(u => u.Username == username).Username}");
             Assert.That(session.User, Is.EqualTo(Site.ToyGetUsers().Single(u => u.Username == username)));
         }
 

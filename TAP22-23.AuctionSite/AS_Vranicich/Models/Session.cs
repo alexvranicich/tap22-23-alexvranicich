@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Xml.Linq;
 using AS_Vranicich.DbContext;
 using AS_Vranicich.Utilities;
 using TAP22_23.AlarmClock.Interface;
@@ -31,22 +32,34 @@ namespace AS_Vranicich.Models
         {
             MyVerify.AuctionVerify(description, startingPrice);
 
-            if (ValidUntil < Site.Now())
-                throw new AuctionSiteInvalidOperationException("Session is expired or not exist");
-
-            if (endsOn < Site.Now())
-                throw new AuctionSiteUnavailableTimeMachineException("Auction is expired");
-
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var user = c.Users.Single(u => u.Username == User.Username);
-            var site = c.Sites.Single(s => s.SiteId == user.SiteId);
+            Site currSite;
+            Session currSession;
+            User currUser;
 
-            ValidUntil = Site.SiteClock.Now.AddSeconds(Site.SessionExpirationInSeconds);
+            try
+            {
+                currSite = c.Sites.Single(site => site.SiteId == SiteId);
+                currSession = c.Sessions.Single(s => s.Id == Id);
+                currUser = c.Users.Single(u => u.UserId == UserId);
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException($"{nameof(Site)} not exist", e);
+            }
 
+            var currentTime = currSite.Now();
+            
+            if (ValidUntil < currentTime)
+                throw new AuctionSiteInvalidOperationException("Session is expired or not exist");
 
-            var currSession = c.Sessions.Single(s => s.Id == Id);
+            if (endsOn < currentTime)
+                throw new AuctionSiteUnavailableTimeMachineException("Auction is expired");
+
+            ValidUntil = currentTime.AddSeconds(currSite.SessionExpirationInSeconds);
+
             currSession.ValidUntil = ValidUntil;
             c.Sessions.Update(currSession);
 
@@ -55,9 +68,11 @@ namespace AS_Vranicich.Models
                 EndsOn = endsOn,
                 Description = description,
                 CurrPrice = startingPrice,
-                Seller = User,
-                Site = Site,
-                SiteId = SiteId,
+                Seller = currUser,
+                Session = currSession,
+                SessionId = currSession.Id,
+                Site = currSite,
+                SiteId = currSite.SiteId,
             };
 
             c.Auctions.Add(auction);
@@ -88,7 +103,7 @@ namespace AS_Vranicich.Models
                     return false;
                 context.Dispose();
             }
-            return ValidUntil.Subtract(Site.SiteClock.Now).TotalSeconds > 0;
+            return ValidUntil.Subtract(Site.Now()).TotalSeconds > 0;
         }
 
     }
