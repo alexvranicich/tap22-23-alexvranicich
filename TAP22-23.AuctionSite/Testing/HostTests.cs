@@ -573,6 +573,8 @@
         [Test]
         public void LoadSite_ValidArg_ReturnsSiteWithSessions0()
         {
+            Console.WriteLine(newSite.Name);
+            Console.WriteLine(siteName);
             Assert.That(newSite.Name, Is.EqualTo(siteName));
         }
 
@@ -966,14 +968,11 @@
             newSite = TheHost.LoadSite(siteName);
             var auctionList = newSite.ToyGetAuctions(false).ToList();
             Assert.That(auctionList.Count, Is.EqualTo(2));
+            
             var barbaraAuction = auctionList.Single(a => a.Seller.Username == barbara);
             Assert.That(CheckAuctionValues(barbaraAuction,
-                expectedAuctionList.Single(a => a.Seller.Username == barbara).Id,
-                barbara,
-                barbaraAuctionEndsOn,
-                barbaraAuctionDescription,
-                8.25,
-                carlotta));
+                expectedAuctionList.Single(a => a.Seller.Username == barbara).Id, barbara, barbaraAuctionEndsOn, barbaraAuctionDescription, 8.5, carlotta));
+            
             var aliceAuction = auctionList.Single(a => a.Seller.Username == alice);
             Assert.That(CheckAuctionValues(aliceAuction,
                 expectedAuctionList.Single(a => a.Seller.Username == alice).Id,

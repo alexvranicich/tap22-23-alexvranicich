@@ -16,6 +16,7 @@ namespace AS_Vranicich.Models
         public int Id { get; set; }
         [NotMapped]
         public IUser Seller { get; set; }
+        public string SellerName { get; set; }
         public string Description { get; set; }
         public DateTime EndsOn { get; set; }
 
@@ -24,21 +25,33 @@ namespace AS_Vranicich.Models
         public Session Session { get; set; }
         public string SessionId { get; set; }
 
-        public string? WinningUser { get; set; }
-        public double MaximumOffer { get; set; }
+        public User? WinningUser { get; set; }
+        public string? WinningUsername { get; set; }
+        public double MaximumOffer { get; set; } = 0.0;
         public double CurrPrice { get; set; }
+        public double StartingPrice { get; set; }
 
         /*
          * Methods
          */
+
+        public override bool Equals(Object a2)
+        {
+            if (a2 == null) return false;
+            if (a2 is Auction auctionTwo)
+            {
+                return SiteId == auctionTwo.SiteId && Id == auctionTwo.Id;
+            }
+            return false;
+        }
 
         public IUser? CurrentWinner()
         {
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var currAuction = c.Auctions.SingleOrDefault(a => a.Id == Id && a.SiteId == SiteId);     
-            return c.Users.SingleOrDefault(u => u.Username == currAuction.WinningUser);
+            var currAuction = c.Auctions.Single(a => a.Id == Id && a.SiteId == SiteId);     
+            return c.Users.SingleOrDefault<IUser>(u => u.Username == currAuction.WinningUsername);
         }
 
         public double CurrentPrice()
@@ -135,15 +148,15 @@ namespace AS_Vranicich.Models
              *                              && This is not the first bid
              */
 
-            if (currUser.Username == currAuction.WinningUser &&
+            if (currUser.Username == currAuction.WinningUsername &&
                 offer < currAuction.MaximumOffer + currAuction.Site.MinimumBidIncrement)
                 return false;
 
-            if (currUser.Username != currAuction.WinningUser && offer < currAuction.CurrentPrice())
+            if (currUser.Username != currAuction.WinningUsername && offer < currAuction.CurrPrice)
                 return false;
 
-            if (currUser.Username != currAuction.WinningUser &&
-                offer < currAuction.CurrentPrice() + currAuction.Site.MinimumBidIncrement && CurrentPrice() > 0)
+            if (currUser.Username != currAuction.WinningUsername &&
+                offer < currAuction.CurrPrice + currAuction.Site.MinimumBidIncrement && currAuction.WinningUsername != null)
                 return false;
 
             /*
@@ -153,19 +166,20 @@ namespace AS_Vranicich.Models
              * and the bidder becomes the current winner
              */
 
-            if (currAuction.CurrentPrice() == 0)
+            if (currAuction.WinningUsername == null)
             {
                 MaximumOffer = offer;
-                currAuction.WinningUser = currUser.Username;
+                currAuction.WinningUser = currUser;
+                currAuction.WinningUsername = currUser.Username;
             }
 
             /*
-             * IF the bidder was already winning this auctio
+             * IF the bidder was already winning this auction
              * THEN maximum offer is set to offer and
              * current price and current winner are unchanged
              */
 
-            else if (currAuction.WinningUser == currUser.Username)
+            else if (currAuction.WinningUsername == currUser.Username)
             {
                 MaximumOffer = offer;
             }
@@ -178,11 +192,12 @@ namespace AS_Vranicich.Models
              * and the bidder becomes the current winner
              */
 
-            else if (currAuction.CurrentPrice() > 0 && currUser.Username != currAuction.WinningUser && offer > MaximumOffer)
+            else if (currAuction.WinningUsername != null && currUser.Username != currAuction.WinningUsername && offer > MaximumOffer)
             {
                 currAuction.CurrPrice = Math.Min(offer, currAuction.MaximumOffer + Site.MinimumBidIncrement);
                 currAuction.MaximumOffer = offer;
-                currAuction.WinningUser = currUser.Username;
+                currAuction.WinningUser = currUser;
+                currAuction.WinningUsername = currUser.Username;
             }
 
             /*
@@ -192,11 +207,13 @@ namespace AS_Vranicich.Models
              * and the current winner does not change
              */
 
-            else if (currAuction.CurrentPrice() > 0 && currUser.Username != currAuction.WinningUser && offer <= MaximumOffer)
+            else if (currAuction.WinningUsername != null && currUser.Username != currAuction.WinningUsername && offer < MaximumOffer)
             {
                 currAuction.CurrPrice = Math.Min(currAuction.MaximumOffer, offer + Site.MinimumBidIncrement);
             }
 
+            currSession.ValidUntil = currTimeClock.AddSeconds(Site.SessionExpirationInSeconds);
+            c.Sessions.Update(currSession);
             c.Auctions.Update(currAuction);
             c.SaveChanges();
             return true;

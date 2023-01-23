@@ -121,20 +121,17 @@ namespace AS_Vranicich.Logic
 
                     try
                     {
-                        var site = c.Sites.SingleOrDefault(s => s.Name == name);
-                        if (site == null)
-                            throw new AuctionSiteInexistentNameException($"{nameof(name)}: this site not exists");
-
+                        var site = c.Sites.Single(s => s.Name == name);
 
                         IAlarmClock alarmClock = AlarmClockFactory.InstantiateAlarmClock(site.Timezone);
-                        site.SetSessionCleanerAlarm(alarmClock);
+                        site.SetAlarm(alarmClock);
 
                         c.SaveChanges();
                         return site;
                     }
                     catch (InvalidOperationException e)
                     {
-                        throw new AuctionSiteInexistentNameException($"{nameof(name)}", "This name not exist in DbSet",
+                        throw new AuctionSiteInexistentNameException($"{nameof(name)}", "This site not exist in DbSet",
                             e);
                     }
                 }

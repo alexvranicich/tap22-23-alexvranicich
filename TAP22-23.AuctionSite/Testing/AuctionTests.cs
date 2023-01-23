@@ -191,7 +191,7 @@
         /// <param name="secondOffer">The second bid</param>
         /// <param name="expectedCurrentPrice">The expected final price</param>
         private void TwoBidsGetPrice(ISession firstBidderSession, int firstOffer, ISession secondBidderSession, int secondOffer, int expectedCurrentPrice)
-        {
+        { 
             TheAuction.Bid(firstBidderSession, firstOffer);
             TheAuction.Bid(secondBidderSession, secondOffer);
             Assert.That(TheAuction.CurrentPrice(), Is.EqualTo(expectedCurrentPrice));

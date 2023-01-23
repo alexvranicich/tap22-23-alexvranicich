@@ -27,6 +27,16 @@ namespace AS_Vranicich.Models
         /*
          * Methods
          */
+        public override bool Equals(Object s2)
+        {
+            if (s2 == null) return false;
+            if (s2 is Session sessionTwo)
+            {
+                return sessionTwo.SiteId == SiteId && Id == sessionTwo.Id;
+            }
+            return false;
+        }
+
 
         public IAuction CreateAuction(string description, DateTime endsOn, double startingPrice)
         {
@@ -67,8 +77,10 @@ namespace AS_Vranicich.Models
             {
                 EndsOn = endsOn,
                 Description = description,
+                StartingPrice = startingPrice,
                 CurrPrice = startingPrice,
                 Seller = currUser,
+                SellerName = currUser.Username,
                 Session = currSession,
                 SessionId = currSession.Id,
                 Site = currSite,

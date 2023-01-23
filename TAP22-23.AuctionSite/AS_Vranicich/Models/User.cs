@@ -28,18 +28,27 @@ namespace AS_Vranicich.Models
         public Session SessionUser { get; set; }
         public List<Auction> AuctionsUser { get; set; }
 
-        
-
         /*
          * Methods
          */
+        public override bool Equals(Object u2)
+        {
+            if (u2 == null) return false;
+            if (u2 is User userTwo)
+            {
+                return userTwo.UserId == UserId &&
+                       SiteId == userTwo.SiteId &&
+                       Username == userTwo.Username;
+            }
+            return false;
+        }
 
         public IEnumerable<IAuction> WonAuctions()
         {
             using var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
-            var allWonAuctions = c.Auctions.Where(a => a.WinningUser == Username);
+            var allWonAuctions = c.Auctions.Where(a => a.WinningUsername == Username);
 
             foreach (var auction in allWonAuctions)
             {
@@ -67,7 +76,7 @@ namespace AS_Vranicich.Models
                 throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user has a NON ENDED auction");
             */
 
-                var currWin = c.Auctions.Where(c => c.WinningUser == currUser.Username);
+                var currWin = c.Auctions.Where(c => c.WinningUsername == currUser.Username);
                 if (currWin.Any())
                     throw new AuctionSiteInvalidOperationException(
                         "Can't delete this user, this user is winning an auction");

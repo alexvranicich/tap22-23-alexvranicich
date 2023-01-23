@@ -26,7 +26,7 @@ namespace AS_Vranicich.DbContext
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             var user = modelBuilder.Entity<User>();
-            user.HasOne(user => user.SiteUser).WithMany(site => site.SiteUsers).OnDelete(DeleteBehavior.Cascade);
+            user.HasOne(user => user.SiteUser).WithMany(site => site.Users).OnDelete(DeleteBehavior.Cascade);
             user.HasOne(user => user.SessionUser);
             user.HasMany(user => user.AuctionsUser).WithOne(auction => (User?)auction.Seller).OnDelete(DeleteBehavior.ClientCascade);
 

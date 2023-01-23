@@ -8,6 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
+using static System.Collections.Specialized.BitVector32;
 
 namespace AS_Vranicich.Models
 {
@@ -22,24 +23,34 @@ namespace AS_Vranicich.Models
         [MinLength(DomainConstraints.MinSiteName)]
         [MaxLength(DomainConstraints.MaxSiteName)]
         public string Name { get; set; }
-
         [Range(DomainConstraints.MinTimeZone,DomainConstraints.MaxTimeZone)]
         public int Timezone { get; set; }
-
         public int SessionExpirationInSeconds { get; set; }
         public double MinimumBidIncrement { get; set; }
+        
         [NotMapped]
         public static IAlarmClock SiteClock { get; set; }
-        private static IAlarm SiteAlarm { get; set; }
 
         public List<Session>? Sessions { get; set; }
-        public List<User>? SiteUsers { get; set; }
+        public List<User>? Users { get; set; }
         public List<Auction>? Auctions { get; set; }
 
 
         /*
          * Methods
          */
+
+        public override bool Equals(Object s2)
+        {
+            if (s2 == null) return false;
+            if (s2 is Site siteTwo)
+            {
+                return siteTwo.SiteId == SiteId && siteTwo.Name == Name;
+            }
+            return false;
+        }
+
+
         public IEnumerable<IUser> ToyGetUsers()
         {
             using var c = new AsDbContext();
@@ -49,7 +60,7 @@ namespace AS_Vranicich.Models
             
             try
             {
-                currSite = c.Sites.Single(site => site.SiteId == SiteId);
+                currSite = c.Sites.Single(site => site.Name == Name);
             }
             catch (InvalidOperationException e)
             {
@@ -74,17 +85,21 @@ namespace AS_Vranicich.Models
 
             try
             { 
-                currSite = c.Sites.Single(site => site.SiteId == SiteId);
+                currSite = c.Sites.Single(site => site.Name == Name);
             }
             catch (InvalidOperationException e)
             {
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist", e);
             }
 
-            var allSessions= c.Sessions.Where(s => s.Site.Name == currSite.Name && s.ValidUntil > Now());
+            var siteUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId).ToList();
+
+            DateTime currTime = currSite.Now();
+            var allSessions = c.Sessions.Where(s => s.Site.SiteId == currSite.SiteId && s.ValidUntil > currTime);
 
             foreach (var session in allSessions)
             {
+                session.User = siteUsers.First<User>(s => s.UserId == session.UserId);
                 yield return session;
             }
         }
@@ -95,10 +110,9 @@ namespace AS_Vranicich.Models
             MyVerify.DB_ContextVerify(c);
 
             Site currSite;
-
             try
             {
-                currSite = c.Sites.Single(site => site.SiteId == SiteId);
+                currSite = c.Sites.Single(site => site.Name == Name);
             }
             catch (InvalidOperationException e)
             {
@@ -106,21 +120,25 @@ namespace AS_Vranicich.Models
             }
 
             var allAuctions = c.Auctions.Where(a => a.Site.Name == currSite.Name);
+            var users = c.Users.Where(a => a.SiteId == SiteId).ToList();
+            var sessions = c.Sessions.Where(s => s.SiteId == currSite.SiteId);
+            DateTime currTime = currSite.Now();
 
-            if (!onlyNotEnded)
+            foreach (var auction in allAuctions)
             {
-                foreach (var singleAuction in allAuctions)
+                auction.Seller = users.Single(u => u.Username == auction.SellerName);
+                auction.WinningUser = users.SingleOrDefault(u => u.Username == auction.WinningUsername);
+
+                if (!onlyNotEnded)
                 {
-                    yield return singleAuction;
+                    yield return auction;
                 }
-            }
-            else
-            {
-                var notEndAuctions = allAuctions.Where(a => a.EndsOn > Now()).ToList();
-
-                foreach (var singleNotEndAuction in notEndAuctions)
+                else
                 {
-                    yield return singleNotEndAuction;
+                    if (currTime < auction.EndsOn)
+                    {
+                        yield return auction;
+                    }
                 }
             }
         }
@@ -247,31 +265,10 @@ namespace AS_Vranicich.Models
             }
         }
 
-        public void SetSessionCleanerAlarm(IAlarmClock alarmClock)
+        public void SetAlarm(IAlarmClock alarmClock)
         {
             SiteClock = alarmClock;
-            SiteAlarm = alarmClock.InstantiateAlarm(5*60*100);
-            SiteAlarm.RingingEvent += CleanupSessions;
-        }
-
-        public void CleanupSessions()
-        {
-            using (var context = new AsDbContext())
-            {
-                var curSite = context.Sites.SingleOrDefault(s => s.SiteId == SiteId);
-                if (curSite == null)
-                    throw new InvalidOperationException();
-
-                var siteSessions = context.Sessions.Where(s => s.Site.SiteId == SiteId);
-                foreach (var session in siteSessions)
-                {
-                    if (!session.IsValid())
-                    {
-                        context.Sessions.Remove(session);
-                    }
-                }
-                context.SaveChanges();
-            }
+            alarmClock.InstantiateAlarm(5*60*1000);
         }
 
     }
