@@ -122,9 +122,16 @@
         [Test]
         public void Bid_TwoUsers_U1()
         {
+            Console.WriteLine(TheAuction.CurrentPrice());
+            
             TheAuction.Bid(Bidder1Session, 100);
+            Console.WriteLine(Site.MinimumBidIncrement);
+            Console.WriteLine(TheAuction.CurrentPrice());
             TheAuction.Bid(Bidder2Session, 20);
+            Console.WriteLine(TheAuction.CurrentPrice());
             var winner = TheAuction.CurrentWinner();
+            Console.WriteLine(TheAuction.CurrentWinner().Username);
+            Console.WriteLine(Bidder1.Username);
             Assert.That(winner, Is.EqualTo(Bidder1));
         }
 
@@ -301,8 +308,11 @@
         [Test]
         public void Bid_NotEnoughMoney_False1()
         {
+            Console.WriteLine(TheAuction.CurrentPrice());
             TheAuction.Bid(Bidder2Session, 100);
+            Console.WriteLine(TheAuction.CurrentPrice());
             TheAuction.Bid(Bidder1Session, 20);
+            Console.WriteLine(TheAuction.CurrentPrice());
             var accepted = TheAuction.Bid(Bidder2Session, 50);
             Assert.That(!accepted);
         }

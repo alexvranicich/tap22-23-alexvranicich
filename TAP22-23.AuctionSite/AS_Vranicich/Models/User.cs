@@ -36,8 +36,7 @@ namespace AS_Vranicich.Models
             if (u2 == null) return false;
             if (u2 is User userTwo)
             {
-                return userTwo.UserId == UserId &&
-                       SiteId == userTwo.SiteId &&
+                return SiteId == userTwo.SiteId &&
                        Username == userTwo.Username;
             }
             return false;
