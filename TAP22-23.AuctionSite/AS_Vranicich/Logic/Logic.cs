@@ -96,7 +96,7 @@ namespace AS_Vranicich.Logic
                     using var c = new AsDbContext(ConnectionString);
                     MyVerify.DB_ContextVerify(c);
 
-                    List<Site> sites = new List<Site>();
+                    List<Site> sites;
 
                     try
                     {
@@ -107,9 +107,9 @@ namespace AS_Vranicich.Logic
                         throw new AuctionSiteArgumentNullException(e.Message, e);
                     }
 
-                    foreach (var s in sites)
+                    foreach (var site in sites)
                     {
-                        yield return (s.Name, s.Timezone);
+                        yield return (site.Name, site.Timezone);
                     }
                 }
 

@@ -78,7 +78,6 @@ namespace AS_Vranicich.Models
                 EndsOn = endsOn,
                 Description = description,
                 StartingPrice = startingPrice,
-                CurrPrice = startingPrice,
                 Seller = currUser,
                 SellerName = currUser.Username,
                 Session = currSession,
@@ -106,17 +105,6 @@ namespace AS_Vranicich.Models
             }
         }
 
-        public bool IsValid()
-        {
-            using (var context = new AsDbContext())
-            {
-                var checkSession = context.Sessions.SingleOrDefault(s => s.Id == Id);
-                if (checkSession == null)
-                    return false;
-                context.Dispose();
-            }
-            return ValidUntil.Subtract(Site.Now()).TotalSeconds > 0;
-        }
 
     }
 }

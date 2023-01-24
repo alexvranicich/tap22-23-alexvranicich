@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj": {}
+    "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj": {}
   },
   "projects": {
-    "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj": {
+    "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
+        "projectUniqueName": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
         "projectName": "AS_Vranicich",
-        "projectPath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
+        "projectPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
         "packagesPath": "C:\\Users\\alexv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\obj\\",
+        "outputPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\alexv\\AppData\\Roaming\\NuGet\\NuGet.Config",

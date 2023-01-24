@@ -65,7 +65,11 @@ namespace AS_Vranicich.Models
                 if (currentAuction == null)
                     throw new AuctionSiteArgumentOutOfRangeException($"{nameof(Id)} auction expired");
 
-                return currentAuction.CurrPrice;
+                var startingPrice = currentAuction.StartingPrice;
+                var currentPrice = currentAuction.CurrPrice;
+                c.Dispose();
+
+                return currentPrice == 0 ? startingPrice : currentPrice;
             }
             catch (InvalidOperationException e)
             {
@@ -121,13 +125,12 @@ namespace AS_Vranicich.Models
             if (currAuction.EndsOn < currTimeClock)
                 throw new AuctionSiteInvalidOperationException($"{nameof(EndsOn)} auction expired");
 
-            var currSession = c.Sessions.SingleOrDefault(s => s.Id == session.Id);
-            if (currSession == null || currSession.ValidUntil < currTimeClock)
+            if (session == null || session.ValidUntil < currTimeClock)
                 throw new AuctionSiteArgumentException($"{nameof(Id)} isn't a valid session");
 
             var currUser = c.Users.SingleOrDefault(u => u.SessionUser.Id == session.Id);
             if (currUser == null)
-                throw new AuctionSiteInvalidOperationException($"{nameof(currUser)} is not exist in this session");
+                throw new AuctionSiteArgumentException($"{nameof(currUser)} is not exist in this session");
             if (currUser.Username == Seller.Username)
                 throw new AuctionSiteArgumentException($"The logged user is also the Seller of this auction");
 
@@ -140,6 +143,7 @@ namespace AS_Vranicich.Models
 
             double minBid = currSite.MinimumBidIncrement;
 
+
             /*
              * List of not valid bid:
              * 1) Bidder = current winner && offer is lower than the maximum offer increased by minimumBidIncrement
@@ -148,6 +152,9 @@ namespace AS_Vranicich.Models
              *                              && This is not the first bid
              */
 
+            if (offer < currAuction.StartingPrice)
+                return false;
+            
             if (currUser.Username == currAuction.WinningUsername &&
                 offer < currAuction.MaximumOffer + currSite.MinimumBidIncrement)
                 return false;
@@ -219,11 +226,16 @@ namespace AS_Vranicich.Models
                     currAuction.CurrPrice = currAuction.MaximumOffer;
             }
 
-            currSession.ValidUntil = currTimeClock.AddSeconds(currSite.SessionExpirationInSeconds);
-            c.Sessions.Update(currSession);
+            RefreshSession(session);
             c.Auctions.Update(currAuction);
             c.SaveChanges();
             return true;
+        }
+
+        private void RefreshSession(ISession session)
+        {
+            Session refreshedSession = (Session)session;
+            refreshedSession.ValidUntil = refreshedSession.ValidUntil.AddSeconds(Site.SessionExpirationInSeconds);
         }
     }
 }

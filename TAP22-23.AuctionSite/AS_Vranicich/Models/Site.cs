@@ -1,14 +1,11 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Text;
 using AS_Vranicich.DbContext;
 using AS_Vranicich.Utilities;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using TAP22_23.AlarmClock.Interface;
 using TAP22_23.AuctionSite.Interface;
-using static System.Collections.Specialized.BitVector32;
 
 namespace AS_Vranicich.Models
 {
@@ -53,49 +50,55 @@ namespace AS_Vranicich.Models
 
         public IEnumerable<IUser> ToyGetUsers()
         {
-            using var c = new AsDbContext();
+            var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
             Site currSite;
-            
+            IQueryable<User> allUsers;
+
             try
             {
-                currSite = c.Sites.Single(site => site.Name == Name);
+                currSite = c.Sites.Single(s => s.SiteId == SiteId);
+                allUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId);
             }
+         
             catch (InvalidOperationException e)
             {
-                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist", e);
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist, you can't do anything", e);
             }
-
-            var allSiteUsers = c.Users.Where(u => u.SiteUser.SiteId == currSite.SiteId);
-
-            foreach (var user in allSiteUsers)
+            catch (ArgumentNullException e)
             {
-                yield return user;
+                throw new AuctionSiteArgumentNullException($"{nameof(SiteId)} not exist", e);
             }
+
+            return allUsers;
 
         }
 
         public IEnumerable<ISession> ToyGetSessions()
         {
-            using var c = new AsDbContext();
+            var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
             Site currSite;
-
+            List<User> siteUsers;
+            IQueryable<Session> allSessions;
             try
-            { 
+            {
                 currSite = c.Sites.Single(site => site.Name == Name);
+                siteUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId).ToList();
+
+                DateTime currTime = currSite.Now();
+                allSessions = c.Sessions.Where(s => s.Site.SiteId == currSite.SiteId && s.ValidUntil > currTime);
             }
             catch (InvalidOperationException e)
             {
-                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist", e);
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist, you can't do anything", e);
             }
-
-            var siteUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId).ToList();
-
-            DateTime currTime = currSite.Now();
-            var allSessions = c.Sessions.Where(s => s.Site.SiteId == currSite.SiteId && s.ValidUntil > currTime);
+            catch (ArgumentNullException e)
+            {
+                throw new AuctionSiteArgumentNullException($"{nameof(SiteId)} not exist", e);
+            }
 
             foreach (var session in allSessions)
             {
@@ -106,41 +109,42 @@ namespace AS_Vranicich.Models
 
         public IEnumerable<IAuction> ToyGetAuctions(bool onlyNotEnded)
         {
-            using var c = new AsDbContext();
+            var c = new AsDbContext();
             MyVerify.DB_ContextVerify(c);
 
             Site currSite;
+            List<Auction> allAuctions;
+            List<User> siteUsers;
+            DateTime currTime;
             try
             {
                 currSite = c.Sites.Single(site => site.Name == Name);
+                siteUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId).ToList();
+                currTime = currSite.Now();
+                allAuctions = c.Auctions.Where(a => a.Site.SiteId == currSite.SiteId).ToList();
+                
             }
             catch (InvalidOperationException e)
             {
                 throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist", e);
             }
-
-            var allAuctions = c.Auctions.Where(a => a.Site.Name == currSite.Name);
-            var users = c.Users.Where(a => a.SiteId == SiteId).ToList();
-            var sessions = c.Sessions.Where(s => s.SiteId == currSite.SiteId);
-            DateTime currTime = currSite.Now();
+            catch (ArgumentNullException e)
+            {
+                throw new AuctionSiteInvalidOperationException($"{nameof(Name)} not exist", e);
+            }
 
             foreach (var auction in allAuctions)
             {
-                auction.Seller = users.Single(u => u.Username == auction.SellerName);
-                auction.WinningUser = users.SingleOrDefault(u => u.Username == auction.WinningUsername);
-
-                if (!onlyNotEnded)
-                {
-                    yield return auction;
-                }
-                else
-                {
-                    if (currTime < auction.EndsOn)
-                    {
-                        yield return auction;
-                    }
-                }
+                auction.Seller = siteUsers.Single(u => u.Username == auction.SellerName);
+                auction.WinningUser = siteUsers.SingleOrDefault(u => u.Username == auction.WinningUsername);
             }
+
+            if (onlyNotEnded)
+            {
+                return allAuctions.Where(a => a.EndsOn > currTime);
+            }
+            
+            return allAuctions;
         }
 
         public ISession? Login(string username, string password)
@@ -230,26 +234,20 @@ namespace AS_Vranicich.Models
 
         public void Delete()
         {
-            using (var c = new AsDbContext())
+            using var c = new AsDbContext();
+            MyVerify.DB_ContextVerify(c);
+
+            try
             {
-                MyVerify.DB_ContextVerify(c);
-
-                try
-                {
-                    var site = c.Sites.Single(s => s.Name == Name);
-
-                    c.Sites.Remove(site);
-                    c.SaveChanges();
-                    c.Dispose();
-                }
-                catch (InvalidOperationException e)
-                {
-                    throw new AuctionSiteInvalidOperationException("Can't remove this", e);
-                }
-                catch (ArgumentNullException e)
-                {
-                    throw new AuctionSiteArgumentNullException("No site to deleted", e);
-                }
+                var site = c.Sites.Single(s => s.Name == Name);
+                
+                c.Sites.Remove(site);
+                c.SaveChanges();
+                c.Dispose();
+            }
+            catch (InvalidOperationException e)
+            {
+                throw new AuctionSiteInvalidOperationException("Can't remove this");
             }
         }
 

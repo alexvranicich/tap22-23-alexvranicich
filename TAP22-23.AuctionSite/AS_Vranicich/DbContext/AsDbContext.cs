@@ -10,8 +10,8 @@ namespace AS_Vranicich.DbContext
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
         public DbSet<Site> Sites { get; set; }
-        public DbSet<Auction> Auctions { get; set; } 
-        
+        public DbSet<Auction> Auctions { get; set; }
+
         private static string ConnectionString { get; set; }
 
         public AsDbContext(string connectionString) : base(new DbContextOptionsBuilder<AsDbContext>()
@@ -37,7 +37,7 @@ namespace AS_Vranicich.DbContext
             auction.HasOne(auction => auction.Site).WithMany(site => site.Auctions).OnDelete(DeleteBehavior.ClientCascade);
         }
 
-        public override int SaveChanges()
+     /*   public override int SaveChanges()
         {
             try
             {
@@ -65,6 +65,6 @@ namespace AS_Vranicich.DbContext
                     default: throw new AuctionSiteUnavailableDbException(e.Message, e);
                 }
             }
-        }
+        }*/
     }
 }

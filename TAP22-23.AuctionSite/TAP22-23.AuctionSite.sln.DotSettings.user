@@ -25,6 +25,7 @@
       &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostCreateEmptySiteTests&lt;/TestId&gt;&#xD;
       &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostLoadSiteFullSiteTests&lt;/TestId&gt;&#xD;
       &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.SessionTests&lt;/TestId&gt;&#xD;
+      &lt;TestId&gt;NUnit3x::33CE3E39-3156-454D-9022-EE2EE2701A77::net6.0::TAP22_23.AuctionSite.Testing.HostSessionCleanupTests&lt;/TestId&gt;&#xD;
     &lt;/TestAncestor&gt;&#xD;
   &lt;/Or&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
