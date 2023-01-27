@@ -9,7 +9,7 @@ namespace TAP22_23.AuctionSite.Testing
 
         public static void SetUp()
         {
-            using (var configFile = File.OpenText(@"TestConfig.txt"))
+            using (var configFile = File.OpenText(@"..\..\..\..\OriginalReferences\TestConfig.txt"))
             {
                 ImplementationAssembly = configFile.ReadLine()!;
                 ConnectionString = configFile.ReadLine()!;

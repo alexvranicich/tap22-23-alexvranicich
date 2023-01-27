@@ -1,0 +1,5 @@
+﻿@\..\..\..\..\..\AS_Vranicich\obj\Debug\net6.0\AS_Vranicich.dll
+Data Source=HP-ALEX\SQLEXPRESS; Initial Catalog= Db_AS; Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False
+
+
+

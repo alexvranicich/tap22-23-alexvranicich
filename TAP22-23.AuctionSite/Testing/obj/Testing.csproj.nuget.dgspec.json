@@ -11,7 +11,7 @@
         "projectName": "Testing",
         "projectPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
         "packagesPath": "C:\\Users\\alexv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\obj\\",
+        "outputPath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\alexv\\AppData\\Roaming\\NuGet\\NuGet.Config",
