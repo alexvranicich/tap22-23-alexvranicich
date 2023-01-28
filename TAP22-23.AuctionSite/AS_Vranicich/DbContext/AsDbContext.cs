@@ -36,8 +36,7 @@ namespace AS_Vranicich.DbContext
             var auction = modelBuilder.Entity<Auction>();
             auction.HasOne(auction => auction.Site).WithMany(site => site.Auctions).OnDelete(DeleteBehavior.ClientCascade);
         }
-
-     /*   public override int SaveChanges()
+        public override int SaveChanges()
         {
             try
             {
@@ -65,6 +64,6 @@ namespace AS_Vranicich.DbContext
                     default: throw new AuctionSiteUnavailableDbException(e.Message, e);
                 }
             }
-        }*/
+        }
     }
 }

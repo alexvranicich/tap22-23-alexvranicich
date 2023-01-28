@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "rsIpGPcvqYSNLfsdmUlYXE/E0WYfwo48h6Wf83SiFk/BBNwmJiPYKLMv9gkPvMDbzGvmeywriC5+gGLtN8ZeMw==",
+  "dgSpecHash": "IuNDhOhNPQnIEUv0qd1rNfxC7GRaIcmAA4WdXe6BP6HnU0Td0Fs7Ddx8HZqMhuCshxlwf7QmnZYzrivQTtiy2Q==",
   "success": true,
-  "projectFilePath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
+  "projectFilePath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\alexv\\.nuget\\packages\\coverlet.collector\\3.1.2\\coverlet.collector.3.1.2.nupkg.sha512",
     "C:\\Users\\alexv\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",

@@ -59,7 +59,7 @@ namespace AS_Vranicich.Models
             try
             {
                 currSite = c.Sites.Single(s => s.SiteId == SiteId);
-                allUsers = c.Users.Where(u => u.SiteUser.SiteId == SiteId);
+                allUsers = c.Users.Where(u => u.SiteUser.SiteId == currSite.SiteId);
             }
          
             catch (InvalidOperationException e)

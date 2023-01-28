@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj": {}
+    "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj": {}
   },
   "projects": {
-    "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj": {
+    "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
+        "projectUniqueName": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
         "projectName": "Testing",
-        "projectPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
+        "projectPath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\Testing.csproj",
         "packagesPath": "C:\\Users\\alexv\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\obj\\",
+        "outputPath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\Testing\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\alexv\\AppData\\Roaming\\NuGet\\NuGet.Config",

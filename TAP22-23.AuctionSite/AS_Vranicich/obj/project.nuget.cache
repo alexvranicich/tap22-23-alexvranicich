@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "qvRNNek+eFGSMQSOb8iuQoH3MQ7hp4qzqvzSCOpgaGB13gHpa2HRdVE3nzsFeaospvv+T+0o+T8ZOT3kjSrh0A==",
+  "dgSpecHash": "Fr6yxn2y7y3E9n2Xi+1vASRs4NdUzM7VJCbDBrQS0soVa0RhsXGO3TF8CVPuJD3yn8OGAFW/wD+hruHmmnCglg==",
   "success": true,
-  "projectFilePath": "C:\\Users\\alexv\\source\\repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
+  "projectFilePath": "C:\\Users\\alexv\\Source\\Repos\\TAP2017\\tap22-23-alexvranicich\\TAP22-23.AuctionSite\\AS_Vranicich\\AS_Vranicich.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\alexv\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\alexv\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

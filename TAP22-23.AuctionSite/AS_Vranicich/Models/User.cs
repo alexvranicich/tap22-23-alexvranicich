@@ -69,11 +69,6 @@ namespace AS_Vranicich.Models
                 var noAuction = c.Auctions.Where(a => a.Seller == currUser);
                 if (noAuction.Any())
                     throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user not have auction");
-            
-                /*var noEndAuction = noAuction.Where(a=> a.EndsOn < SiteUser.Now())
-            if(noEndAuction.EndsOn < SiteUser.Now())
-                throw new AuctionSiteInvalidOperationException($"Can't delete this user, this user has a NON ENDED auction");
-            */
 
                 var currWin = c.Auctions.Where(c => c.WinningUsername == currUser.Username);
                 if (currWin.Any())
