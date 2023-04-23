@@ -1,3 +1,2 @@
-## AuctionSite per esame TAP
-
+## AuctionSite 
 Applicativo per la gestione di aste in .NET Framework Core
